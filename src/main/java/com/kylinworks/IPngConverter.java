@@ -1,9 +1,12 @@
 package com.kylinworks;
 
-import com.jcraft.jzlib.*;
-
-import java.io.*;
-import java.nio.file.Files;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -11,6 +14,11 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 import java.util.logging.StreamHandler;
 import java.util.zip.CRC32;
+
+import com.jcraft.jzlib.Deflater;
+import com.jcraft.jzlib.GZIPException;
+import com.jcraft.jzlib.Inflater;
+import com.jcraft.jzlib.JZlib;
 
 /**
  * @author Rex
@@ -25,8 +33,12 @@ public class IPngConverter {
 
 
   public IPngConverter(File source, File target) {
-    if (source == null) throw new NullPointerException("'source' cannot be null");
-    if (target == null) throw new NullPointerException("'target' cannot be null");
+    if (source == null) {
+		throw new NullPointerException("'source' cannot be null");
+	}
+    if (target == null) {
+		throw new NullPointerException("'target' cannot be null");
+	}
     this.source = source;
     this.target = target;
   }
@@ -124,7 +136,9 @@ public class IPngConverter {
     Inflater inflater = new Inflater(-15);
 
     for (PNGTrunk dataTrunk : trunks) {
-      if (!"IDAT".equalsIgnoreCase(dataTrunk.getName())) continue;
+      if (!"IDAT".equalsIgnoreCase(dataTrunk.getName())) {
+		continue;
+	}
       inflater.setInput(dataTrunk.getData(), true);
     }
 
@@ -264,8 +278,8 @@ public class IPngConverter {
       boolean bWithCgBI = false;
 
       trunks = new ArrayList<PNGTrunk>();
-      if ((nPNGHeader[0] == -119) && (nPNGHeader[1] == 0x50) && (nPNGHeader[2] == 0x4e) && (nPNGHeader[3] == 0x47)
-        && (nPNGHeader[4] == 0x0d) && (nPNGHeader[5] == 0x0a) && (nPNGHeader[6] == 0x1a) && (nPNGHeader[7] == 0x0a)) {
+      if (nPNGHeader[0] == -119 && nPNGHeader[1] == 0x50 && nPNGHeader[2] == 0x4e && nPNGHeader[3] == 0x47
+        && nPNGHeader[4] == 0x0d && nPNGHeader[5] == 0x0a && nPNGHeader[6] == 0x1a && nPNGHeader[7] == 0x0a) {
 
         PNGTrunk trunk;
         do {
