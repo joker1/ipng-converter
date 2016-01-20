@@ -41,16 +41,20 @@ public class IOSPngConverter {
 		this.closeInput = closeInput;
 	}
 	
-	public IOSPngConverter(byte[] source) {
-		this(new ByteArrayInputStream(source));
+	public IOSPngConverter(byte[] sourceBuffer) {
+		this(new ByteArrayInputStream(sourceBuffer));
 	}
 	
-	public IOSPngConverter(byte[] source, int offset, int length) {
-		this(new ByteArrayInputStream(source, offset, length));
+	public IOSPngConverter(byte[] sourceBuffer, int offset, int length) {
+		this(new ByteArrayInputStream(sourceBuffer, offset, length));
 	}
 	
-	public IOSPngConverter(File source) throws FileNotFoundException {
-		this(new FileInputStream(source));
+	public IOSPngConverter(File sourceFile) throws FileNotFoundException {
+		this(new FileInputStream(sourceFile));
+	}
+	
+	public IOSPngConverter(String sourceFilename) throws FileNotFoundException {
+		this(new File(sourceFilename));
 	}
 	
 	public void convert(OutputStream target) throws IOException, DataFormatException {
