@@ -43,8 +43,8 @@ This library was originally forked from https://github.com/viphe/ipng-converter<
 	</licenses>
 
 	<scm>
-		<connection>scm:https://github.com/joker1/ipng-converter</connection>
-		<developerConnection>scm:ssh://git@github.com:joker1/ipng-converter.git</developerConnection>
+		<connection>scm:git:https://github.com/joker1/ipng-converter</connection>
+		<developerConnection>scm:git:ssh://git@github.com:joker1/ipng-converter.git</developerConnection>
 		<url>https://github.com/joker1/ipng-converter</url>
 	</scm>
 
