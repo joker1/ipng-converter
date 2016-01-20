@@ -183,18 +183,20 @@ public class IOSPngConverter {
 		deflater.deflate(deBuffer, 0, deBuffer.length, Deflater.FULL_FLUSH);
 		deflater.finish();
 		
+		PNGTrunk resultDataTrunk = firstDataTrunk.clone();
+		
 		CRC32 crc32 = new CRC32();
-		crc32.update(firstDataTrunk.getName().getBytes());
+		crc32.update(resultDataTrunk.getName().getBytes());
 		crc32.update(deBuffer, 0, deflater.getTotalOut());
 		long lCRCValue = crc32.getValue();
 		
-		firstDataTrunk.m_nData = deBuffer;
-		firstDataTrunk.m_nCRC[0] = (byte) ((lCRCValue & 0xFF000000) >> 24);
-		firstDataTrunk.m_nCRC[1] = (byte) ((lCRCValue & 0xFF0000) >> 16);
-		firstDataTrunk.m_nCRC[2] = (byte) ((lCRCValue & 0xFF00) >> 8);
-		firstDataTrunk.m_nCRC[3] = (byte) (lCRCValue & 0xFF);
-		firstDataTrunk.m_nSize = deflater.getTotalOut();
+		resultDataTrunk.m_nData = deBuffer;
+		resultDataTrunk.m_nCRC[0] = (byte) ((lCRCValue & 0xFF000000) >> 24);
+		resultDataTrunk.m_nCRC[1] = (byte) ((lCRCValue & 0xFF0000) >> 16);
+		resultDataTrunk.m_nCRC[2] = (byte) ((lCRCValue & 0xFF00) >> 8);
+		resultDataTrunk.m_nCRC[3] = (byte) (lCRCValue & 0xFF);
+		resultDataTrunk.m_nSize = deflater.getTotalOut();
 		
-		return firstDataTrunk;
+		return resultDataTrunk;
 	}
 }

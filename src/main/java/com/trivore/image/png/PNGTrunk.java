@@ -3,11 +3,15 @@ package com.trivore.image.png;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * @author Rex
  */
-public class PNGTrunk {
+public class PNGTrunk implements Serializable, Cloneable {
+	
+	private static final long serialVersionUID = 1L;
 	
 	public int m_nSize;
 	public String m_szName;
@@ -123,5 +127,17 @@ public class PNGTrunk {
 			c = crc_table[(c ^ nBuffer[n]) & 0xff] ^ c >>> 8;
 		}
 		return c;
+	}
+	
+	@Override
+	public PNGTrunk clone() {
+		try {
+			PNGTrunk clone = (PNGTrunk)super.clone();
+			clone.m_nData = Arrays.copyOf(m_nData, m_nData.length);
+			clone.m_nCRC = Arrays.copyOf(m_nCRC, m_nCRC.length);
+			return clone;
+		} catch(CloneNotSupportedException cnse) {
+			throw new RuntimeException("Failed to clone " + getClass(), cnse);
+		}
 	}
 }
