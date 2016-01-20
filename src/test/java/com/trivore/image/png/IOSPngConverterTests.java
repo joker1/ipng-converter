@@ -1,4 +1,4 @@
-package com.kylinworks;
+package com.trivore.image.png;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -9,7 +9,7 @@ import javax.imageio.ImageIO;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class IPngConverterTests {
+public class IOSPngConverterTests {
 	
 	private final File resourcesDir = new File("src/test/resources");
 	
@@ -21,8 +21,8 @@ public class IPngConverterTests {
 		
 		File targetFile = File.createTempFile("AppIcon60x60@2x-target", ".png");
 		targetFile.deleteOnExit();
-		IPngConverter converter = new IPngConverter(sourceFile, targetFile);
-		converter.convert();
+		IOSPngConverter converter = new IOSPngConverter(sourceFile);
+		converter.convert(targetFile);
 		
 		String targetContentType = Files.probeContentType(targetFile.toPath());
 		

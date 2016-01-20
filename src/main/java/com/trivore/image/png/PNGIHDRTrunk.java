@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package com.kylinworks;
+package com.trivore.image.png;
 
 /**
  * @author Rex

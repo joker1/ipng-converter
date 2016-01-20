@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.trivore.image</groupId>
-	<artifactId>ipng-converter</artifactId>
+	<artifactId>iospng-converter</artifactId>
 	<version>1.0-SNAPSHOT</version>
 
 	<organization>

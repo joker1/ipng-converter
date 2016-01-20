@@ -1,18 +1,18 @@
-package com.kylinworks;
+package com.trivore.image.png;
 
 import java.io.DataInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * @author Rex
  */
 public class PNGTrunk {
 	
-	protected int m_nSize;
-	protected String m_szName;
-	protected byte[] m_nData;
-	protected byte[] m_nCRC;
+	public int m_nSize;
+	public String m_szName;
+	public byte[] m_nData;
+	public byte[] m_nCRC;
 	
 	public static PNGTrunk generateTrunk(DataInputStream input) throws IOException {
 		int nSize = readPngInt(input);
@@ -61,7 +61,7 @@ public class PNGTrunk {
 		return m_nCRC;
 	}
 	
-	public void writeToStream(FileOutputStream outStream) throws IOException {
+	public void writeToStream(OutputStream outStream) throws IOException {
 		byte nSize[] = new byte[4];
 		nSize[0] = (byte) ((m_nSize & 0xFF000000) >> 24);
 		nSize[1] = (byte) ((m_nSize & 0xFF0000) >> 16);
