@@ -91,6 +91,10 @@ This library was originally forked from https://github.com/viphe/ipng-converter<
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+			</plugin>
 		</plugins>
 		<pluginManagement>
 			<plugins>
@@ -153,6 +157,11 @@ This library was originally forked from https://github.com/viphe/ipng-converter<
 							<include>**/*Tests.java</include>
 						</includes>
 					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-release-plugin</artifactId>
+					<version>2.5.3</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
