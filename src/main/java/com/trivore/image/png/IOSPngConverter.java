@@ -144,10 +144,14 @@ public class IOSPngConverter {
 		return bout.toByteArray();
 	}
 	
-	public void convert(File target) throws IOException, DataFormatException {
-		FileOutputStream fout = new FileOutputStream(target);
+	public void convert(File targetFile) throws IOException, DataFormatException {
+		FileOutputStream fout = new FileOutputStream(targetFile);
 		convert(fout);
 		fout.close();
+	}
+	
+	public void convert(String targetFilename) throws IOException, DataFormatException {
+		convert(new File(targetFilename));
 	}
 	
 	private PNGTrunk convertData(List<PNGTrunk> trunks, PNGIHDRTrunk ihdrTrunk, PNGTrunk firstDataTrunk)
