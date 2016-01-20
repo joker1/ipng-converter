@@ -12,9 +12,9 @@ repositories {
 }
 
 dependencies {
-    compile 'com.jcraft:jzlib:1.1.2'
+    compile     'com.jcraft:jzlib:1.1.2'
+    testCompile 'junit:junit:4.12'
 }
-
 
 jar {
     manifest {
