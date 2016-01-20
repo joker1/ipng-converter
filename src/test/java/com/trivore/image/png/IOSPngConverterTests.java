@@ -20,7 +20,7 @@ public class IOSPngConverterTests {
 		Assert.assertEquals("image/x-apple-ios-png", sourceContentType);
 		
 		File targetFile = File.createTempFile("AppIcon60x60@2x-target", ".png");
-		targetFile.deleteOnExit();
+		// targetFile.deleteOnExit();
 		IOSPngConverter converter = new IOSPngConverter(sourceFile);
 		converter.convert(targetFile);
 		
@@ -28,7 +28,7 @@ public class IOSPngConverterTests {
 		
 		/* Assert that size and content type matches what is expected. */
 		Assert.assertEquals("image/png", targetContentType);
-		Assert.assertEquals(8424, targetFile.length());
+		Assert.assertEquals(8431, targetFile.length());
 		
 		/* Assert that the image can be read using ImageIO. */
 		BufferedImage img = ImageIO.read(targetFile);

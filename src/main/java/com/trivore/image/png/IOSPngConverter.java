@@ -15,11 +15,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.zip.CRC32;
-
-import com.jcraft.jzlib.Deflater;
-import com.jcraft.jzlib.GZIPException;
-import com.jcraft.jzlib.Inflater;
-import com.jcraft.jzlib.JZlib;
+import java.util.zip.DataFormatException;
+import java.util.zip.Deflater;
+import java.util.zip.Inflater;
 
 /**
  * @author Miika Vesti <miika.vesti@trivore.com>
@@ -55,11 +53,11 @@ public class IOSPngConverter {
 		this(new FileInputStream(source));
 	}
 	
-	public void convert(OutputStream target) throws IOException {
+	public void convert(OutputStream target) throws IOException, DataFormatException {
 		convert(target, true);
 	}
 	
-	public void convert(OutputStream target, boolean closeOutput) throws IOException {
+	public void convert(OutputStream target, boolean closeOutput) throws IOException, DataFormatException {
 		List<PNGTrunk> trunks = new ArrayList<>();
 		boolean bWithCgBI = false;
 		byte[] nPNGHeader = new byte[8];
@@ -71,7 +69,7 @@ public class IOSPngConverter {
 			
 			/* Make sure PNG header is valid. */
 			if (!Arrays.equals(PNG_HEADER, nPNGHeader)) {
-				throw new IOException("Invalid PNG header: " + Arrays.toString(nPNGHeader));
+				throw new DataFormatException("Invalid PNG header: " + Arrays.toString(nPNGHeader));
 			}
 			
 			/* Read PNG trunks. */
@@ -135,25 +133,34 @@ public class IOSPngConverter {
 		}
 	}
 	
-	public byte[] convertBytes() throws IOException {
+	public byte[] convertBytes() throws IOException, DataFormatException {
 		ByteArrayOutputStream bout = new ByteArrayOutputStream();
 		convert(bout);
 		bout.close();
 		return bout.toByteArray();
 	}
 	
-	public void convert(File target) throws IOException {
+	public void convert(File target) throws IOException, DataFormatException {
 		FileOutputStream fout = new FileOutputStream(target);
 		convert(fout);
 		fout.close();
 	}
 	
 	private PNGTrunk convertData(List<PNGTrunk> trunks, PNGIHDRTrunk ihdrTrunk, PNGTrunk firstDataTrunk)
-			throws IOException {
+			throws IOException, DataFormatException {
 		int nMaxInflateBuffer = 4 * (ihdrTrunk.m_nWidth + 1) * ihdrTrunk.m_nHeight;
 		byte[] outputBuffer = new byte[nMaxInflateBuffer];
 		
-		long inflatedSize = inflate(trunks, outputBuffer, nMaxInflateBuffer);
+		Inflater inflater = new Inflater(true);
+		int offset = 0;
+		for (PNGTrunk trunk : trunks) {
+			if (!"IDAT".equalsIgnoreCase(trunk.getName())) {
+				continue;
+			}
+			inflater.setInput(trunk.getData());
+			offset += inflater.inflate(outputBuffer, offset, outputBuffer.length - offset);
+		}
+		inflater.end();
 		
 		// Switch the color
 		int nIndex = 0;
@@ -168,87 +175,26 @@ public class IOSPngConverter {
 			}
 		}
 		
-		Deflater deflater = deflate(outputBuffer, (int) inflatedSize, nMaxInflateBuffer);
+		Deflater deflater = new Deflater(Deflater.BEST_COMPRESSION);
+		deflater.setInput(outputBuffer);
+		
+		int nMaxDeflateBuffer = nMaxInflateBuffer + 1024;
+		byte[] deBuffer = new byte[nMaxDeflateBuffer];
+		deflater.deflate(deBuffer, 0, deBuffer.length, Deflater.FULL_FLUSH);
+		deflater.finish();
 		
 		CRC32 crc32 = new CRC32();
 		crc32.update(firstDataTrunk.getName().getBytes());
-		crc32.update(deflater.getNextOut(), 0, (int) deflater.getTotalOut());
+		crc32.update(deBuffer, 0, deflater.getTotalOut());
 		long lCRCValue = crc32.getValue();
 		
-		firstDataTrunk.m_nData = deflater.getNextOut();
+		firstDataTrunk.m_nData = deBuffer;
 		firstDataTrunk.m_nCRC[0] = (byte) ((lCRCValue & 0xFF000000) >> 24);
 		firstDataTrunk.m_nCRC[1] = (byte) ((lCRCValue & 0xFF0000) >> 16);
 		firstDataTrunk.m_nCRC[2] = (byte) ((lCRCValue & 0xFF00) >> 8);
 		firstDataTrunk.m_nCRC[3] = (byte) (lCRCValue & 0xFF);
-		firstDataTrunk.m_nSize = (int) deflater.getTotalOut();
+		firstDataTrunk.m_nSize = deflater.getTotalOut();
 		
 		return firstDataTrunk;
-	}
-	
-	private long inflate(List<PNGTrunk> trunks, byte[] outputBuffer, int nMaxInflateBuffer) throws GZIPException {
-		Inflater inflater = new Inflater(-15);
-		
-		for (PNGTrunk dataTrunk : trunks) {
-			if (!"IDAT".equalsIgnoreCase(dataTrunk.getName())) {
-				continue;
-			}
-			inflater.setInput(dataTrunk.getData(), true);
-		}
-		
-		inflater.setOutput(outputBuffer);
-		
-		int nResult;
-		try {
-			nResult = inflater.inflate(JZlib.Z_NO_FLUSH);
-			checkResultStatus(nResult);
-		} finally {
-			inflater.inflateEnd();
-		}
-		
-		if (inflater.getTotalOut() > nMaxInflateBuffer) {
-			// log.fine("PNGCONV_ERR_INFLATED_OVER");
-		}
-		
-		return inflater.getTotalOut();
-	}
-	
-	private Deflater deflate(byte[] buffer, int length, int nMaxInflateBuffer) throws GZIPException {
-		Deflater deflater = new Deflater();
-		deflater.setInput(buffer, 0, length, false);
-		
-		int nMaxDeflateBuffer = nMaxInflateBuffer + 1024;
-		byte[] deBuffer = new byte[nMaxDeflateBuffer];
-		deflater.setOutput(deBuffer);
-		
-		deflater.deflateInit(JZlib.Z_BEST_COMPRESSION);
-		int nResult = deflater.deflate(JZlib.Z_FINISH);
-		checkResultStatus(nResult);
-		
-		if (deflater.getTotalOut() > nMaxDeflateBuffer) {
-			throw new GZIPException("deflater output buffer was too small");
-		}
-		
-		return deflater;
-	}
-	
-	private void checkResultStatus(int nResult) throws GZIPException {
-		switch (nResult) {
-			case JZlib.Z_OK:
-			case JZlib.Z_STREAM_END:
-				break;
-				
-			case JZlib.Z_NEED_DICT:
-				throw new GZIPException("Z_NEED_DICT - " + nResult);
-			case JZlib.Z_DATA_ERROR:
-				throw new GZIPException("Z_DATA_ERROR - " + nResult);
-			case JZlib.Z_MEM_ERROR:
-				throw new GZIPException("Z_MEM_ERROR - " + nResult);
-			case JZlib.Z_STREAM_ERROR:
-				throw new GZIPException("Z_STREAM_ERROR - " + nResult);
-			case JZlib.Z_BUF_ERROR:
-				throw new GZIPException("Z_BUF_ERROR - " + nResult);
-			default:
-				throw new GZIPException("inflater error: " + nResult);
-		}
 	}
 }
