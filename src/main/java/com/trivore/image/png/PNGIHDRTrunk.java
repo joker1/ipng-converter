@@ -10,6 +10,8 @@ package com.trivore.image.png;
  */
 public class PNGIHDRTrunk extends PNGTrunk {
 	
+	private static final long serialVersionUID = 1L;
+	
 	public int m_nWidth;
 	public int m_nHeight;
 	
