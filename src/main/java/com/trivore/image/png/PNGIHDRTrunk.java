@@ -21,4 +21,9 @@ public class PNGIHDRTrunk extends PNGTrunk {
 		m_nWidth = readInt(nData, 0);
 		m_nHeight = readInt(nData, 4);
 	}
+	
+	@Override
+	public PNGIHDRTrunk clone() {
+		return (PNGIHDRTrunk) super.clone();
+	}
 }
