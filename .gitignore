@@ -3,10 +3,7 @@
 build/
 out/
 *.iml
-
 *.class
-
-# Package Files #
 *.jar
 *.war
 *.ear
@@ -14,3 +11,5 @@ out/
 .classpath
 .project
 .settings
+release.properties
+pom.xml.releaseBackup
