@@ -2,6 +2,7 @@ package com.trivore.image.png;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,23 +23,16 @@ import java.util.zip.Inflater;
 /**
  * @author Miika Vesti <miika.vesti@trivore.com>
  */
-public class IOSPngConverter {
+public class IOSPngConverter implements Closeable, AutoCloseable {
 	
 	static final byte[] PNG_HEADER = {-119, 80, 78, 71, 13, 10, 26, 10};
 	
 	private final DataInputStream source;
 	
-	private final boolean closeInput;
-	
 	public IOSPngConverter(InputStream source) {
-		this(source, true);
-	}
-	
-	public IOSPngConverter(InputStream source, boolean closeInput) {
 		super();
 		Objects.requireNonNull(source, "iOS png source must not be null");
 		this.source = new DataInputStream(source);
-		this.closeInput = closeInput;
 	}
 	
 	public IOSPngConverter(byte[] sourceBuffer) {
@@ -99,11 +93,6 @@ public class IOSPngConverter {
 				target.close();
 			}
 			throw ioe;
-		} finally {
-			if (closeInput) {
-				/* Close input if required. */
-				source.close();
-			}
 		}
 		
 		try {
@@ -206,5 +195,10 @@ public class IOSPngConverter {
 		resultDataTrunk.m_nSize = deflater.getTotalOut();
 		
 		return resultDataTrunk;
+	}
+	
+	@Override
+	public void close() throws IOException {
+		source.close();
 	}
 }
