@@ -21,8 +21,9 @@ public class IOSPngConverterTests {
 		
 		File targetFile = File.createTempFile("AppIcon60x60@2x-target", ".png");
 		// targetFile.deleteOnExit();
-		IOSPngConverter converter = new IOSPngConverter(sourceFile);
-		converter.convert(targetFile);
+		try (IOSPngConverter converter = new IOSPngConverter(sourceFile)) {
+			converter.convert(targetFile);
+		}
 		
 		String targetContentType = Files.probeContentType(targetFile.toPath());
 		
