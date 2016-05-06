@@ -16,11 +16,9 @@ public class IOSPngConverterTests {
 	@Test
 	public void testAppIconConversion() throws Exception {
 		File sourceFile = new File(resourcesDir, "AppIcon60x60@2x.png");
-		String sourceContentType = Files.probeContentType(sourceFile.toPath());
-		Assert.assertEquals("image/x-apple-ios-png", sourceContentType);
 		
 		File targetFile = File.createTempFile("AppIcon60x60@2x-target", ".png");
-		// targetFile.deleteOnExit();
+		targetFile.deleteOnExit();
 		try (IOSPngConverter converter = new IOSPngConverter(sourceFile)) {
 			converter.convert(targetFile);
 		}
@@ -34,5 +32,13 @@ public class IOSPngConverterTests {
 		/* Assert that the image can be read using ImageIO. */
 		BufferedImage img = ImageIO.read(targetFile);
 		Assert.assertNotNull(img);
+		
+		int width = img.getWidth();
+		int height = img.getHeight();
+		
+		Assert.assertEquals(120, width);
+		Assert.assertEquals(120, height);
+		
+		targetFile.delete();
 	}
 }
