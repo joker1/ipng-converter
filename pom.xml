@@ -63,11 +63,6 @@ This library was originally forked from https://github.com/viphe/ipng-converter<
 			<version>4.12</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>com.jcraft</groupId>
-			<artifactId>jzlib</artifactId>
-			<version>${jzlib.version}</version>
-		</dependency>
 	</dependencies>
 
 	<build>
